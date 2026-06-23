@@ -1,9 +1,16 @@
-name: Connect to Database # (Optional) Name of your workflow
+name: connect to the database
 
 on:
   push:
     branches:
-      - main # This tells GitHub to trigger the pipeline on pushes to 'main'
+      - main
 
 jobs:
-  # ... (The rest of your existing workflow code goes here)
+  test-db:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        run: echo "Workflow is running"
