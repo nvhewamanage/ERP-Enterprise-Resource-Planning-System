@@ -1,0 +1,9 @@
+name: Connect to Database # (Optional) Name of your workflow
+
+on:
+  push:
+    branches:
+      - main # This tells GitHub to trigger the pipeline on pushes to 'main'
+
+jobs:
+  # ... (The rest of your existing workflow code goes here)
