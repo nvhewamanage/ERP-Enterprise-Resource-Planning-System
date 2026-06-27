@@ -15,9 +15,10 @@ jobs:
       - name: Test
         run: echo "Workflow is running"
   
-        
+
   docker:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       -
         name: Login to Docker Hub
