@@ -1,0 +1,29 @@
+# Dependency directories
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker-related files
+Dockerfile
+.dockerignore
+
+# Git and version control
+.git
+.gitignore
+
+# Build outputs (optional, depending on your setup)
+dist/
+build/
+
+# Local environment variables
+.env
+
+# Editor and OS files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
