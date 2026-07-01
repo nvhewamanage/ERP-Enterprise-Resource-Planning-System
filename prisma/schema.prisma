@@ -4,90 +4,169 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model Role {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  users     User[]
-  createdAt DateTime @default(now())
-}
+// ---------------- Core / Auth ----------------
 
 model User {
   id        String   @id @default(cuid())
-  name      String
   email     String   @unique
   password  String
-  roleId    String
-  role      Role     @relation(fields: [roleId], references: [id])
+  name      String
+  role      Role     @default(EMPLOYEE)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee  Employee?
 }
 
-model Department {
-  id        String     @id @default(cuid())
-  name      String
-  employees Employee[]
+enum Role {
+  ADMIN
+  HR
+  FINANCE
+  SALES
+  PURCHASING
+  INVENTORY_MANAGER
+  EMPLOYEE
 }
+
+// ---------------- HR module ----------------
 
 model Employee {
-  id           String     @id @default(cuid())
-  firstName    String
-  lastName     String
-  email        String     @unique
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id])
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  department   String
+  position     String
+  hireDate     DateTime
+  salary       Decimal
+  payrollRuns  PayrollEntry[]
+  createdAt    DateTime @default(now())
+}
 
-  attendances   Attendance[]
-  leaveRequests LeaveRequest[]
+// ---------------- Payroll module ----------------
 
+model PayrollEntry {
+  id          String   @id @default(cuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  periodStart DateTime
+  periodEnd   DateTime
+  grossPay    Decimal
+  deductions  Decimal
+  netPay      Decimal
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+}
+
+// ---------------- Inventory module ----------------
+
+model Product {
+  id          String   @id @default(cuid())
+  sku         String   @unique
+  name        String
+  description String?
+  quantity    Int      @default(0)
+  unitPrice   Decimal
+  reorderAt   Int      @default(0)
+  saleItems   SaleItem[]
+  poItems     PurchaseOrderItem[]
+  createdAt   DateTime @default(now())
+}
+
+// ---------------- Sales module ----------------
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  sales     Sale[]
   createdAt DateTime @default(now())
 }
 
-model Attendance {
-  id         String   @id @default(cuid())
-  employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  date       DateTime
-  status     String
+model Sale {
+  id         String     @id @default(cuid())
+  customerId String
+  customer   Customer   @relation(fields: [customerId], references: [id])
+  items      SaleItem[]
+  total      Decimal
+  status     SaleStatus @default(PENDING)
+  createdAt  DateTime   @default(now())
 }
 
-model LeaveRequest {
-  id         String   @id @default(cuid())
-  employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  reason     String
-  startDate  DateTime
-  endDate    DateTime
-  status     String
+model SaleItem {
+  id        String  @id @default(cuid())
+  saleId    String
+  sale      Sale    @relation(fields: [saleId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal
 }
 
-model Category {
-  id       String    @id @default(cuid())
-  name     String
-  products Product[]
+enum SaleStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  CANCELLED
 }
 
-model Product {
-  id         String   @id @default(cuid())
-  name       String
-  price      Float
-  quantity   Int
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-}
-
-model Supplier {
-  id    String @id @default(cuid())
-  name  String
-  email String
-  phone String
-
-  purchaseOrders PurchaseOrder[]
-}
+// ---------------- Purchase Orders module ----------------
 
 model PurchaseOrder {
-  id         String   @id @default(cuid())
+  id         String              @id @default(cuid())
   supplierId String
-  supplier   Supplier @relation(fields: [supplierId], references: [id])
-  total      Float
+  supplier   Supplier            @relation(fields: [supplierId], references: [id])
+  items      PurchaseOrderItem[]
+  status     PurchaseOrderStatus @default(DRAFT)
+  createdAt  DateTime            @default(now())
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  quantity        Int
+  unitCost        Decimal
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  RECEIVED
+  CANCELLED
+}
+
+// ---------------- Supplier module ----------------
+
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  contactEmail   String?
+  contactPhone   String?
+  purchaseOrders PurchaseOrder[]
+  createdAt      DateTime        @default(now())
+}
+
+// ---------------- Finance module ----------------
+
+model Invoice {
+  id        String        @id @default(cuid())
+  reference String        @unique
+  amount    Decimal
+  status    InvoiceStatus @default(UNPAID)
+  dueDate   DateTime
+  createdAt DateTime      @default(now())
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  OVERDUE
+  CANCELLED
 }

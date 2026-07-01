@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: erp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-erp_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-erp_password}
+      POSTGRES_DB: ${DB_NAME:-erp_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-erp_user} -d ${DB_NAME:-erp_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: erp_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-erp_user}:${DB_PASSWORD:-erp_password}@postgres:5432/${DB_NAME:-erp_db}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+
+volumes:
+  postgres_data:
