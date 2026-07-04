@@ -24,8 +24,8 @@ jobs:
         name: Login to Docker Hub
         uses: docker/login-action@v4
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.nvhewamanage }}
+          password: ${{ secrets.myaccesstoken }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -37,4 +37,4 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           push: true
-          tags: user/app:latest
+          tags: ${{ secrets.nvhewamanage }}/erp-app:latest
