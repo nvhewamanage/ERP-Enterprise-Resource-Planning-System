@@ -1,5 +1,20 @@
-// TODO: flesh out fields to match db/migrations/001_init.sql (products table)
 export interface Product {
   id: string;
+  sku: string;
+  name: string;
+  quantityOnHand: number;
+  reorderLevel: number;
+  unitCost: number;
   createdAt: string;
+  updatedAt: string;
 }
+
+export interface CreateProductInput {
+  sku: string;
+  name: string;
+  quantityOnHand?: number;
+  reorderLevel?: number;
+  unitCost?: number;
+}
+
+export type UpdateProductInput = Partial<CreateProductInput>;

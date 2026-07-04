@@ -1,8 +1,21 @@
 import { query } from "@/lib/db";
 import type { Employee, CreateEmployeeInput, UpdateEmployeeInput } from "../types/employee";
 
+interface EmployeeRow {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  job_title: string | null;
+  department: string | null;
+  hire_date: string | null;
+  status: Employee["status"];
+  created_at: string;
+  updated_at: string;
+}
+
 // Maps a snake_case DB row to the camelCase Employee type used in the app.
-function mapRow(row: any): Employee {
+function mapRow(row: EmployeeRow): Employee {
   return {
     id: row.id,
     firstName: row.first_name,
@@ -18,21 +31,29 @@ function mapRow(row: any): Employee {
 }
 
 export async function listEmployees(): Promise<Employee[]> {
-  const result = await query("SELECT * FROM employees ORDER BY created_at DESC");
+  const result = await query<EmployeeRow>("SELECT * FROM employees ORDER BY created_at DESC");
   return result.rows.map(mapRow);
 }
 
 export async function getEmployeeById(id: string): Promise<Employee | null> {
-  const result = await query("SELECT * FROM employees WHERE id = $1", [id]);
+  const result = await query<EmployeeRow>("SELECT * FROM employees WHERE id = $1", [id]);
   return result.rows[0] ? mapRow(result.rows[0]) : null;
 }
 
 export async function createEmployee(input: CreateEmployeeInput): Promise<Employee> {
-  const result = await query(
+  const result = await query<EmployeeRow>(
     `INSERT INTO employees (first_name, last_name, email, job_title, department, hire_date, status)
      VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, 'active'))
      RETURNING *`,
-    [input.firstName, input.lastName, input.email, input.jobTitle, input.department, input.hireDate, input.status]
+    [
+      input.firstName,
+      input.lastName,
+      input.email,
+      input.jobTitle ?? null,
+      input.department ?? null,
+      input.hireDate ?? null,
+      input.status ?? null,
+    ]
   );
   return mapRow(result.rows[0]);
 }
@@ -42,7 +63,7 @@ export async function updateEmployee(id: string, input: UpdateEmployeeInput): Pr
   if (!existing) return null;
 
   const merged = { ...existing, ...input };
-  const result = await query(
+  const result = await query<EmployeeRow>(
     `UPDATE employees
      SET first_name = $1, last_name = $2, email = $3, job_title = $4,
          department = $5, hire_date = $6, status = $7, updated_at = now()
