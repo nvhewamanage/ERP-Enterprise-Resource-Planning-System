@@ -11,8 +11,14 @@ export interface Employee {
   updatedAt: string;
 }
 
-export type CreateEmployeeInput = Omit<Employee, "id" | "createdAt" | "updatedAt" | "status"> & {
+export interface CreateEmployeeInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  jobTitle?: string;
+  department?: string;
+  hireDate?: string;
   status?: Employee["status"];
-};
+}
 
 export type UpdateEmployeeInput = Partial<CreateEmployeeInput>;
