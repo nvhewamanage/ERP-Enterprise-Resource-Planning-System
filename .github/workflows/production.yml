@@ -38,3 +38,4 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.nvhewamanage }}/erp-app:latest
+
