@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loginSchema } from "@/modules/auth/validations/auth.schema";
-import { verifyCredentials, touchLastLogin } from "@/modules/auth/services/auth.service";
-import { signSession, SESSION_COOKIE } from "@/lib/jwt";
+import { loginSchema } from "@/modules/auth/types/validations/auth.schema";
+import {
+  verifyCredentials,
+  touchLastLogin,
+} from "@/modules/auth/types/services/auth.service";
+import { SESSION_COOKIE, signSession } from "@/lib/jwt";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

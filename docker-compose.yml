@@ -27,7 +27,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env.example
+      - .env.local
     environment:
       DATABASE_URL: postgres://${DB_USER:-erp_user}:${DB_PASSWORD:-erp_password}@postgres:5432/${DB_NAME:-erp_db}
     depends_on:
