@@ -34,9 +34,14 @@ function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      }
+
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong");
+        setError(data.error ?? "An unexpected server error occurred.");
         return;
       }
 
