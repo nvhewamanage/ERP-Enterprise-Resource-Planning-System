@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { query } from "@/lib/db";
-import type { AuthUser, LoginInput } from "../types/auth";
+import type { AuthUser, LoginInput } from "../auth";
 
 interface UserWithRoleRow {
   id: string;
