@@ -12,6 +12,18 @@ Modules: HR, Payroll, Inventory, Sales, Purchase Orders, Finance, Supplier Manag
 
 **Stack:** Next.js (App Router) + TypeScript · PostgreSQL (raw SQL via `pg`, no ORM) · Docker Compose · Zod validation · Zustand · JWT auth (`jose`) with RBAC.
 
+**Phase 3 — Business:** Sales (customers + sales orders), Payroll, Finance
+(general ledger). Sales orders mirror Purchase Orders' shape exactly —
+draft → confirmed → fulfilled/cancelled — except fulfilling a sales order
+*debits* stock instead of crediting it, and fails the whole transition if
+any line item doesn't have enough on hand (no negative stock).
+`payroll:manage` is granted to `hr_manager` (see
+`db/migrations/005_payroll_permission.sql`) since payroll processing is
+conventionally handled by HR. The Products "list" endpoint now also
+accepts `sales:manage` as an alternate permission, same reasoning as the
+Purchase Orders fix above — the Sales Order form needs to read products
+regardless of which manage-permission the current user holds.
+
 ## Modules built so far
 
 **Phase 1 — Foundation:** Docker, Postgres, Auth (JWT), Roles/RBAC, Users, Dashboard shell.

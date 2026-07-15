@@ -4,7 +4,7 @@ import { createProductSchema } from "@/modules/inventory/validations/product.sch
 import { listProducts, createProduct, getProductBySku } from "@/modules/inventory/services/product.service";
 
 export async function GET(req: NextRequest) {
-  const { error } = await requirePermission(req, ["inventory:manage", "purchase:manage"]);
+  const { error } = await requirePermission(req, ["inventory:manage", "purchase:manage", "sales:manage"]);
   if (error) return error;
 
   const products = await listProducts();
