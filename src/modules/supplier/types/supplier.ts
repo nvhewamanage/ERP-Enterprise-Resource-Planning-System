@@ -1,5 +1,17 @@
-// TODO: flesh out fields to match db/migrations/001_init.sql (suppliers table)
 export interface Supplier {
   id: string;
+  name: string;
+  contactEmail?: string | null;
+  phone?: string | null;
+  address?: string | null;
   createdAt: string;
 }
+
+export interface CreateSupplierInput {
+  name: string;
+  contactEmail?: string | null;
+  phone?: string | null;
+  address?: string | null;
+}
+
+export type UpdateSupplierInput = Partial<CreateSupplierInput>;
