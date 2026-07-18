@@ -39,3 +39,4 @@ jobs:
           push: true
           tags: ${{ secrets.nvhewamanage }}/erp-app:latest
 
+# test run
