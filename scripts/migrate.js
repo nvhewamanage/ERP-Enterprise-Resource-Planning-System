@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Runs any .sql files in db/migrations against DATABASE_URL, in filename order.
 // Use this for migrations added AFTER the DB already exists — Postgres only
 // auto-runs /docker-entrypoint-initdb.d scripts once, on a brand-new volume.

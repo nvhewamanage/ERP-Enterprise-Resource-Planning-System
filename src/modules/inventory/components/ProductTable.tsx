@@ -2,7 +2,7 @@ import type { Product } from "../types/product";
 import { StockBadge } from "./StockBadge";
 
 function formatCurrency(value: number) {
-  return value.toLocaleString(undefined, { style: "currency", currency: "USD" });
+  return "Rs. " + value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export function ProductTable({ products }: { products: Product[] }) {

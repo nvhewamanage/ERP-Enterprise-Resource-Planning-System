@@ -185,7 +185,7 @@ export function SalesOrderForm({
 
       <div className="flex items-center justify-between border-t border-zinc-200 pt-3">
         <p className="text-sm text-zinc-600">
-          Total: <span className="font-mono font-medium text-zinc-900">${total.toFixed(2)}</span>
+          Total: <span className="font-mono font-medium text-zinc-900">Rs. {total.toFixed(2)}</span>
         </p>
       </div>
 

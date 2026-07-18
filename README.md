@@ -24,6 +24,33 @@ accepts `sales:manage` as an alternate permission, same reasoning as the
 Purchase Orders fix above — the Sales Order form needs to read products
 regardless of which manage-permission the current user holds.
 
+**Phase 4 — Enterprise Features:** Reports & Charts, Notifications, Email,
+Audit Logs, File Uploads, Backups.
+- **Audit Logs** (`audit:view`) — `src/lib/audit.ts`'s `recordAudit()` is
+  called from the users, purchase-orders, sales-orders, and payroll
+  mutation routes; view the trail at `/dashboard/audit`.
+- **Notifications** — the bell icon in the navbar polls
+  `/api/notifications` every 30s. Broadcast notifications (visible to
+  everyone) fire when a purchase order is received and when a product
+  drops to/below its reorder level after a sales order is fulfilled.
+- **Email** — `src/lib/email.ts` wraps `nodemailer`; if `SMTP_HOST` isn't
+  set, it logs to the console instead of sending, so local dev never
+  needs a real mail provider. Sends a welcome email on user creation and
+  an optional low-stock alert to `ADMIN_ALERT_EMAIL`.
+- **Reports & Charts** (`reports:view`) — `/dashboard/reports` charts
+  sales revenue, purchase spend, and payroll cost by month (last 6
+  months), plus a top-products-by-revenue table. Backed by
+  `src/modules/reports/services/report.service.ts`.
+- **File Uploads** — a generic `file_attachments` table + `/api/attachments`
+  endpoint any module can reuse via `<AttachmentsPanel entityType entityId />`
+  (currently wired into Purchase Orders' detail view). Files land in
+  `./uploads` locally — see `ATTACHMENT_ENTITY_PERMISSIONS` in
+  `src/config/rbac.ts` to add a new entity type.
+- **Backups** (`settings:manage`) — `npm run backup` / `npm run restore`
+  run `pg_dump`/`psql` via `docker compose exec postgres` **from the host**
+  (the app container's Node image has no Postgres client tools). List and
+  download existing backups at `/dashboard/settings`.
+
 ## Modules built so far
 
 **Phase 1 — Foundation:** Docker, Postgres, Auth (JWT), Roles/RBAC, Users, Dashboard shell.

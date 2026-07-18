@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/jwt";
+import { requirePermission } from "@/lib/api-auth";
+import { recordAudit } from "@/lib/audit";
 import { updateUserSchema } from "@/modules/users/validations/user.schema";
 import { getUserById, updateUser, deleteUser } from "@/modules/users/services/user.service";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-async function requireUsersManage(req: NextRequest) {
-  const session = await getSession(req);
-  if (!session) return { error: NextResponse.json({ error: "Not authenticated" }, { status: 401 }) };
-  if (!session.permissions.includes("users:manage")) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
-  }
-  return { session };
-}
-
 export async function GET(req: NextRequest, { params }: RouteParams) {
-  const { error } = await requireUsersManage(req);
+  const { error } = await requirePermission(req, "users:manage");
   if (error) return error;
 
   const { id } = await params;
@@ -25,7 +17,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
-  const { error } = await requireUsersManage(req);
+  const { error } = await requirePermission(req, "users:manage");
   if (error) return error;
 
   const { id } = await params;
@@ -41,15 +33,21 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
-  const { error, session } = await requireUsersManage(req);
+  const { error, session } = await requirePermission(req, "users:manage");
   if (error) return error;
 
   const { id } = await params;
-  if (session!.userId === id) {
+  if (session.userId === id) {
     return NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 });
   }
 
+  const existing = await getUserById(id);
   const ok = await deleteUser(id);
   if (!ok) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (existing) {
+    await recordAudit(session, "user.delete", "user", id, { email: existing.email, role: existing.roleName });
+  }
+
   return new NextResponse(null, { status: 204 });
 }

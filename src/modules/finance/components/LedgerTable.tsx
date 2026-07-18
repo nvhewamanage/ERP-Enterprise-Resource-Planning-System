@@ -13,7 +13,7 @@ export function AccountBalanceSummary({ balances }: { balances: AccountBalance[]
         <div key={b.account} className="rounded-lg border border-zinc-200 bg-white p-3">
           <p className="truncate text-xs uppercase tracking-wide text-zinc-500">{b.account}</p>
           <p className={`mt-1 font-mono text-lg font-medium ${b.balance >= 0 ? "text-zinc-900" : "text-rose-600"}`}>
-            ${b.balance.toFixed(2)}
+            Rs. {b.balance.toFixed(2)}
           </p>
         </div>
       ))}
@@ -49,8 +49,8 @@ export function LedgerTable({ entries }: { entries: LedgerEntry[] }) {
               <td className="px-4 py-3 text-xs text-zinc-500">{formatDate(e.createdAt)}</td>
               <td className="px-4 py-3 font-medium text-zinc-900">{e.account}</td>
               <td className="px-4 py-3 text-zinc-600">{e.description ?? "—"}</td>
-              <td className="px-4 py-3 font-mono text-zinc-700">{e.debit > 0 ? `$${e.debit.toFixed(2)}` : "—"}</td>
-              <td className="px-4 py-3 font-mono text-zinc-700">{e.credit > 0 ? `$${e.credit.toFixed(2)}` : "—"}</td>
+              <td className="px-4 py-3 font-mono text-zinc-700">{e.debit > 0 ? `Rs. ${e.debit.toFixed(2)}` : "—"}</td>
+              <td className="px-4 py-3 font-mono text-zinc-700">{e.credit > 0 ? `Rs. ${e.credit.toFixed(2)}` : "—"}</td>
             </tr>
           ))}
         </tbody>
