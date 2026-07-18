@@ -44,9 +44,9 @@ export function PayrollTable({
               <td className="px-4 py-3 text-xs text-zinc-600">
                 {formatDate(r.periodStart)} – {formatDate(r.periodEnd)}
               </td>
-              <td className="px-4 py-3 font-mono text-zinc-700">${r.grossPay.toFixed(2)}</td>
-              <td className="px-4 py-3 font-mono text-zinc-700">${r.deductions.toFixed(2)}</td>
-              <td className="px-4 py-3 font-mono font-medium text-zinc-900">${r.netPay.toFixed(2)}</td>
+              <td className="px-4 py-3 font-mono text-zinc-700">Rs. {r.grossPay.toFixed(2)}</td>
+              <td className="px-4 py-3 font-mono text-zinc-700">Rs. {r.deductions.toFixed(2)}</td>
+              <td className="px-4 py-3 font-mono font-medium text-zinc-900">Rs. {r.netPay.toFixed(2)}</td>
               <td className="px-4 py-3"><PayrollStatusBadge status={r.status} /></td>
               <td className="px-4 py-3 text-right">
                 <div className="flex justify-end gap-3">

@@ -94,7 +94,7 @@ export function PayrollForm({
 
       <div className="sm:col-span-2 rounded-md border border-zinc-200 bg-white px-3 py-2">
         <p className="text-xs uppercase tracking-wide text-zinc-500">Net pay</p>
-        <p className="font-mono text-lg font-medium text-zinc-900">${netPay.toFixed(2)}</p>
+        <p className="font-mono text-lg font-medium text-zinc-900">Rs. {netPay.toFixed(2)}</p>
       </div>
 
       {errors.root && (

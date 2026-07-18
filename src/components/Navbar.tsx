@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function Navbar() {
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-black/[.08] bg-white px-6 dark:border-white/[.1] dark:bg-zinc-950">
       <div />
       <div className="flex items-center gap-3">
+        <NotificationBell />
         {user && (
           <div className="flex items-center gap-2 text-sm">
             <span className="font-medium text-foreground">{user.name}</span>

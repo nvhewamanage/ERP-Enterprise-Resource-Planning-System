@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/api-auth";
+import { recordAudit } from "@/lib/audit";
 import { updatePayrollRunStatusSchema } from "@/modules/payroll/validations/payroll-run.schema";
 import {
   getPayrollRunById,
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
-  const { error } = await requirePermission(req, "payroll:manage");
+  const { error, session } = await requirePermission(req, "payroll:manage");
   if (error) return error;
 
   const { id } = await params;
@@ -33,6 +34,12 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const run = await updatePayrollRunStatus(id, parsed.data.status);
     if (!run) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    await recordAudit(session, "payroll_run.status_change", "payroll_run", id, {
+      status: parsed.data.status,
+      employeeName: run.employeeName,
+    });
+
     return NextResponse.json(run);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Couldn't update this payroll run.";
@@ -41,13 +48,21 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
-  const { error } = await requirePermission(req, "payroll:manage");
+  const { error, session } = await requirePermission(req, "payroll:manage");
   if (error) return error;
 
   const { id } = await params;
   try {
+    const existing = await getPayrollRunById(id);
     const ok = await deletePayrollRun(id);
     if (!ok) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    if (existing) {
+      await recordAudit(session, "payroll_run.delete", "payroll_run", id, {
+        employeeName: existing.employeeName,
+      });
+    }
+
     return new NextResponse(null, { status: 204 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Couldn't delete this payroll run.";

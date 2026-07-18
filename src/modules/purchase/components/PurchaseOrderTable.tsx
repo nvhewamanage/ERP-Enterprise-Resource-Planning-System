@@ -3,6 +3,7 @@
 import { Fragment, useState } from "react";
 import type { PurchaseOrderSummary, PurchaseOrder, PurchaseOrderStatus } from "../types/purchase-order";
 import { POStatusBadge } from "./POStatusBadge";
+import { AttachmentsPanel } from "@/modules/attachments/components/AttachmentsPanel";
 
 const NEXT_ACTIONS: Record<PurchaseOrderStatus, { label: string; next: PurchaseOrderStatus }[]> = {
   draft: [
@@ -80,7 +81,7 @@ export function PurchaseOrderTable({
               <tr className="cursor-pointer hover:bg-zinc-50" onClick={() => toggleExpand(o.id)}>
                 <td className="px-4 py-3 font-medium text-zinc-900">{o.supplierName}</td>
                 <td className="px-4 py-3 text-zinc-600">{o.itemCount}</td>
-                <td className="px-4 py-3 font-mono text-zinc-900">${o.totalAmount.toFixed(2)}</td>
+                <td className="px-4 py-3 font-mono text-zinc-900">Rs. {o.totalAmount.toFixed(2)}</td>
                 <td className="px-4 py-3"><POStatusBadge status={o.status} /></td>
                 <td className="px-4 py-3 text-xs text-zinc-500">{formatDate(o.orderedAt)}</td>
                 <td className="px-4 py-3 text-xs text-zinc-500">{formatDate(o.receivedAt)}</td>
@@ -122,14 +123,16 @@ export function PurchaseOrderTable({
                                 <td className="py-1.5 pr-4 text-zinc-900">{item.productName}</td>
                                 <td className="py-1.5 pr-4 font-mono text-zinc-500">{item.sku}</td>
                                 <td className="py-1.5 pr-4 text-zinc-700">{item.quantity}</td>
-                                <td className="py-1.5 pr-4 font-mono text-zinc-700">${item.unitPrice.toFixed(2)}</td>
+                                <td className="py-1.5 pr-4 font-mono text-zinc-700">Rs. {item.unitPrice.toFixed(2)}</td>
                                 <td className="py-1.5 font-mono text-zinc-900">
-                                  ${(item.quantity * item.unitPrice).toFixed(2)}
+                                  Rs. {(item.quantity * item.unitPrice).toFixed(2)}
                                 </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
+
+                        <AttachmentsPanel entityType="purchase_order" entityId={o.id} />
 
                         {NEXT_ACTIONS[o.status].length > 0 && (
                           <div className="flex gap-2">

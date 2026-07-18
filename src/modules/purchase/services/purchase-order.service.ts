@@ -15,6 +15,7 @@ interface PurchaseOrderRow {
   ordered_at: string | null;
   received_at: string | null;
   created_at: string;
+  supplier_name: string;
 }
 
 interface PurchaseOrderItemRow {
@@ -42,7 +43,10 @@ async function getPurchaseOrderByIdInTx(
   id: string
 ): Promise<PurchaseOrder | null> {
   const poResult = await q<PurchaseOrderRow>(
-    "SELECT * FROM purchase_orders WHERE id = $1",
+    `SELECT po.*, s.name AS supplier_name
+     FROM purchase_orders po
+     LEFT JOIN suppliers s ON po.supplier_id = s.id
+     WHERE po.id = $1`,
     [id]
   );
   if (poResult.rowCount === 0) return null;
@@ -59,6 +63,7 @@ async function getPurchaseOrderByIdInTx(
   return {
     id: po.id,
     supplierId: po.supplier_id,
+    supplierName: po.supplier_name,
     status: po.status,
     totalAmount: Number(po.total_amount),
     orderedAt: po.ordered_at,

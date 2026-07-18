@@ -80,7 +80,7 @@ export function SalesOrderTable({
               <tr className="cursor-pointer hover:bg-zinc-50" onClick={() => toggleExpand(o.id)}>
                 <td className="px-4 py-3 font-medium text-zinc-900">{o.customerName}</td>
                 <td className="px-4 py-3 text-zinc-600">{o.itemCount}</td>
-                <td className="px-4 py-3 font-mono text-zinc-900">${o.totalAmount.toFixed(2)}</td>
+                <td className="px-4 py-3 font-mono text-zinc-900">Rs. {o.totalAmount.toFixed(2)}</td>
                 <td className="px-4 py-3"><SOStatusBadge status={o.status} /></td>
                 <td className="px-4 py-3 text-xs text-zinc-500">{formatDate(o.confirmedAt)}</td>
                 <td className="px-4 py-3 text-xs text-zinc-500">{formatDate(o.fulfilledAt)}</td>
@@ -122,9 +122,9 @@ export function SalesOrderTable({
                                 <td className="py-1.5 pr-4 text-zinc-900">{item.productName}</td>
                                 <td className="py-1.5 pr-4 font-mono text-zinc-500">{item.sku}</td>
                                 <td className="py-1.5 pr-4 text-zinc-700">{item.quantity}</td>
-                                <td className="py-1.5 pr-4 font-mono text-zinc-700">${item.unitPrice.toFixed(2)}</td>
+                                <td className="py-1.5 pr-4 font-mono text-zinc-700">Rs. {item.unitPrice.toFixed(2)}</td>
                                 <td className="py-1.5 font-mono text-zinc-900">
-                                  ${(item.quantity * item.unitPrice).toFixed(2)}
+                                  Rs. {(item.quantity * item.unitPrice).toFixed(2)}
                                 </td>
                               </tr>
                             ))}

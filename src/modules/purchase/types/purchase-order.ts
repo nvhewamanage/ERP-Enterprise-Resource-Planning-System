@@ -12,6 +12,7 @@ export interface PurchaseOrderItem {
 export interface PurchaseOrder {
   id: string;
   supplierId: string;
+  supplierName: string;
   status: PurchaseOrderStatus;
   totalAmount: number;
   orderedAt: string | null;

@@ -13,7 +13,10 @@ export const ROUTE_PERMISSIONS: { prefix: string; permission: string }[] = [
   { prefix: "/dashboard/purchase", permission: "purchase:manage" },
   { prefix: "/dashboard/finance", permission: "finance:manage" },
   { prefix: "/dashboard/suppliers", permission: "supplier:manage" },
-  // Anything else under /dashboard (the overview page, /settings, etc.)
+  { prefix: "/dashboard/reports", permission: "reports:view" },
+  { prefix: "/dashboard/audit", permission: "audit:view" },
+  { prefix: "/dashboard/settings", permission: "settings:manage" },
+  // Anything else under /dashboard (the overview page, notifications, etc.)
   // just needs a valid session with dashboard access.
   { prefix: "/dashboard", permission: "dashboard:view" },
 ];
@@ -34,4 +37,19 @@ export const NAV_ITEMS: { href: string; label: string; permission: string }[] = 
   { href: "/dashboard/purchase", label: "Purchase Orders", permission: "purchase:manage" },
   { href: "/dashboard/finance", label: "Finance", permission: "finance:manage" },
   { href: "/dashboard/suppliers", label: "Suppliers", permission: "supplier:manage" },
+  { href: "/dashboard/reports", label: "Reports", permission: "reports:view" },
+  { href: "/dashboard/audit", label: "Audit Log", permission: "audit:view" },
+  { href: "/dashboard/settings", label: "Settings", permission: "settings:manage" },
 ];
+
+// Maps an attachment's entityType to the permission required to view/upload/
+// delete files attached to that kind of record. Used by the generic
+// file-attachments API (src/app/api/attachments) so every module can reuse
+// the same upload endpoint without its own bespoke permission check.
+export const ATTACHMENT_ENTITY_PERMISSIONS: Record<string, string> = {
+  purchase_order: "purchase:manage",
+  sales_order: "sales:manage",
+  employee: "hr:manage",
+  supplier: "supplier:manage",
+  product: "inventory:manage",
+};

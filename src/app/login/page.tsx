@@ -2,7 +2,7 @@
 
 import { Suspense, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore, type CurrentUser } from "@/store/auth.store";
 
 export default function LoginPage() {
   return (
@@ -34,10 +34,10 @@ function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
-      let data: any = {};
+      let data: Record<string, unknown> & { error?: string } = {};
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
+        data = await res.json() as Record<string, unknown> & { error?: string };
       }
 
       if (!res.ok) {
@@ -45,7 +45,7 @@ function LoginForm() {
         return;
       }
 
-      setUser(data);
+      setUser(data as unknown as CurrentUser);
       const next = searchParams.get("next") ?? "/dashboard";
       router.push(next);
       router.refresh();

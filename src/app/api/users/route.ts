@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/jwt";
+import { requirePermission } from "@/lib/api-auth";
+import { recordAudit } from "@/lib/audit";
+import { sendWelcomeEmail } from "@/lib/email";
 import { createUserSchema } from "@/modules/users/validations/user.schema";
 import { listUsers, createUser, getUserByEmail } from "@/modules/users/services/user.service";
 
-async function requireUsersManage(req: NextRequest) {
-  const session = await getSession(req);
-  if (!session) return { error: NextResponse.json({ error: "Not authenticated" }, { status: 401 }) };
-  if (!session.permissions.includes("users:manage")) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
-  }
-  return { session };
-}
-
 export async function GET(req: NextRequest) {
-  const { error } = await requireUsersManage(req);
+  const { error } = await requirePermission(req, "users:manage");
   if (error) return error;
 
   const users = await listUsers();
@@ -21,7 +14,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireUsersManage(req);
+  const { error, session } = await requirePermission(req, "users:manage");
   if (error) return error;
 
   const body = await req.json();
@@ -36,5 +29,9 @@ export async function POST(req: NextRequest) {
   }
 
   const user = await createUser(parsed.data);
+
+  await recordAudit(session, "user.create", "user", user.id, { email: user.email, role: user.roleName });
+  await sendWelcomeEmail(user);
+
   return NextResponse.json(user, { status: 201 });
 }
