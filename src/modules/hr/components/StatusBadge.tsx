@@ -1,9 +1,9 @@
 import type { Employee } from "../types/employee";
 
 const STYLES: Record<Employee["status"], { dot: string; text: string; bg: string }> = {
-  active: { dot: "bg-accent", text: "text-accent", bg: "bg-accent-soft" },
-  inactive: { dot: "bg-zinc-400", text: "text-zinc-600", bg: "bg-zinc-100" },
-  terminated: { dot: "bg-rose-500", text: "text-rose-700", bg: "bg-rose-50" },
+  active: { dot: "bg-status-success", text: "text-status-success", bg: "bg-status-success-soft" },
+  inactive: { dot: "bg-status-neutral", text: "text-status-neutral", bg: "bg-status-neutral-soft" },
+  terminated: { dot: "bg-status-danger", text: "text-status-danger", bg: "bg-status-danger-soft" },
 };
 
 export function StatusBadge({ status }: { status: Employee["status"] }) {

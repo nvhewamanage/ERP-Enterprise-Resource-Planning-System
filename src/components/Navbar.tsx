@@ -1,12 +1,12 @@
 "use client";
 
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
   async function handleLogout() {
@@ -16,25 +16,16 @@ export default function Navbar() {
   }
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b border-black/[.08] bg-white px-6 dark:border-white/[.1] dark:bg-zinc-950">
-      <div />
-      <div className="flex items-center gap-3">
-        <NotificationBell />
-        {user && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-foreground">{user.name}</span>
-            <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
-              {user.role.replace("_", " ")}
-            </span>
-          </div>
-        )}
-        <button
-          onClick={handleLogout}
-          className="rounded-lg border border-black/[.1] px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-white/[.15] dark:text-zinc-300 dark:hover:bg-zinc-900"
-        >
-          Log out
-        </button>
-      </div>
+    <header className="flex h-14 shrink-0 items-center justify-end gap-2 border-b border-card-border bg-white px-6">
+      <NotificationBell />
+      <button
+        onClick={handleLogout}
+        aria-label="Log out"
+        title="Log out"
+        className="rounded-lg border border-card-border p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+      >
+        <LogOut size={16} strokeWidth={2} />
+      </button>
     </header>
   );
 }
