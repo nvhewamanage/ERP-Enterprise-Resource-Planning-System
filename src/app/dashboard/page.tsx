@@ -110,8 +110,8 @@ function StatCard({
   );
 }
 
-function dayLabel(value: any) {
-  if (typeof value !== "string") return String(value);
+function dayLabel(value: unknown) {
+  if (typeof value !== "string") return String(value ?? "");
   return new Date(value + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" });
 }
 
@@ -206,7 +206,7 @@ export default function DashboardPage() {
             />
             <StatCard
               label="Sales this month"
-              value={`$${summary.totalSales.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              value={`Rs. ${summary.totalSales.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`}
               delta={summary.totalSales.deltaPct}
               icon={ShoppingCart}
               iconBg="bg-status-success-soft"
@@ -214,7 +214,7 @@ export default function DashboardPage() {
             />
             <StatCard
               label="Purchases this month"
-              value={`$${summary.totalPurchases.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              value={`Rs. ${summary.totalPurchases.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`}
               delta={summary.totalPurchases.deltaPct}
               icon={Truck}
               iconBg="bg-status-warning-soft"
@@ -222,7 +222,7 @@ export default function DashboardPage() {
             />
             <StatCard
               label="Net Profit"
-              value={`$${summary.netProfit.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              value={`Rs. ${summary.netProfit.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`}
               delta={summary.netProfit.deltaPct}
               icon={TrendingUp}
               iconBg="bg-status-danger-soft"
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                     <YAxis fontSize={12} width={40} />
                     <Tooltip
                       labelFormatter={dayLabel}
-                      formatter={(value: any) => [`$${Number(value).toFixed(2)}`, "Sales"]}
+                      formatter={(value: unknown) => [`Rs. ${Number(value || 0).toFixed(2)}`, "Sales"]}
                     />
                     <Area
                       type="monotone"
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                             <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(value: any) => [`$${Number(value).toFixed(2)}`, "Revenue"]} />
+                        <Tooltip formatter={(value: unknown) => [`Rs. ${Number(value || 0).toFixed(2)}`, "Revenue"]} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -295,7 +295,7 @@ export default function DashboardPage() {
                           style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}
                         />
                         <span className="truncate text-zinc-600">{p.name}</span>
-                        <span className="ml-auto shrink-0 font-mono text-zinc-400">${p.revenue.toFixed(0)}</span>
+                        <span className="ml-auto shrink-0 font-mono text-zinc-400">Rs. {p.revenue.toFixed(0)}</span>
                       </li>
                     ))}
                   </ul>
