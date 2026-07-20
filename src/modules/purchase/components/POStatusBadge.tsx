@@ -1,10 +1,10 @@
 import type { PurchaseOrderStatus } from "../types/purchase-order";
 
 const STYLES: Record<PurchaseOrderStatus, { dot: string; text: string; bg: string }> = {
-  draft: { dot: "bg-zinc-400", text: "text-zinc-600", bg: "bg-zinc-100" },
-  ordered: { dot: "bg-amber-500", text: "text-amber-700", bg: "bg-amber-50" },
-  received: { dot: "bg-accent", text: "text-accent", bg: "bg-accent-soft" },
-  cancelled: { dot: "bg-rose-500", text: "text-rose-700", bg: "bg-rose-50" },
+  draft: { dot: "bg-status-neutral", text: "text-status-neutral", bg: "bg-status-neutral-soft" },
+  ordered: { dot: "bg-status-warning", text: "text-status-warning", bg: "bg-status-warning-soft" },
+  received: { dot: "bg-status-success", text: "text-status-success", bg: "bg-status-success-soft" },
+  cancelled: { dot: "bg-status-danger", text: "text-status-danger", bg: "bg-status-danger-soft" },
 };
 
 export function POStatusBadge({ status }: { status: PurchaseOrderStatus }) {

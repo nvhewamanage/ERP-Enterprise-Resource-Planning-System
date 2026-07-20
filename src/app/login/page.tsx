@@ -2,7 +2,7 @@
 
 import { Suspense, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore, type CurrentUser } from "@/store/auth.store";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function LoginPage() {
   return (
@@ -34,18 +34,13 @@ function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
-      let data: Record<string, unknown> & { error?: string } = {};
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json() as Record<string, unknown> & { error?: string };
-      }
-
+      const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "An unexpected server error occurred.");
+        setError(data.error ?? "Something went wrong");
         return;
       }
 
-      setUser(data as unknown as CurrentUser);
+      setUser(data);
       const next = searchParams.get("next") ?? "/dashboard";
       router.push(next);
       router.refresh();
@@ -55,8 +50,8 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-4 dark:bg-black">
-      <div className="w-full max-w-sm rounded-2xl border border-black/[.08] bg-white p-8 shadow-sm dark:border-white/[.1] dark:bg-zinc-950">
+    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-4">
+      <div className="w-full max-w-sm rounded-2xl border border-black/[.08] bg-white p-8 shadow-sm">
         <h1 className="text-xl font-semibold text-foreground">Sign in to ERP</h1>
         <p className="mt-1 text-sm text-zinc-500">Enter your credentials to access your dashboard.</p>
 
@@ -72,7 +67,7 @@ function LoginForm() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-black/[.1] bg-transparent px-3 py-2 text-sm outline-none focus:border-accent dark:border-white/[.15]"
+              className="w-full rounded-lg border border-black/[.1] bg-transparent px-3 py-2 text-sm outline-none focus:border-accent"
               placeholder="you@company.com"
             />
           </div>
@@ -88,13 +83,13 @@ function LoginForm() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-black/[.1] bg-transparent px-3 py-2 text-sm outline-none focus:border-accent dark:border-white/[.15]"
+              className="w-full rounded-lg border border-black/[.1] bg-transparent px-3 py-2 text-sm outline-none focus:border-accent"
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+            <p className="rounded-lg bg-status-danger-soft px-3 py-2 text-sm text-status-danger">
               {error}
             </p>
           )}

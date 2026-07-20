@@ -51,6 +51,27 @@ Audit Logs, File Uploads, Backups.
   (the app container's Node image has no Postgres client tools). List and
   download existing backups at `/dashboard/settings`.
 
+## Design system
+
+The UI follows a fixed light-content / dark-navy-sidebar look (not an
+OS dark-mode toggle — the CSS variables in `src/app/globals.css` are
+deliberate design tokens, not theme-switching ones). Semantic status
+colors (`status-success`, `status-warning`, `status-danger`,
+`status-neutral` + their `-soft` backgrounds) are shared by every
+`*StatusBadge.tsx` component so a given status always reads the same
+color everywhere in the app. Icons come from `lucide-react`, mapped to
+nav items in `src/components/Sidebar.tsx`.
+
+Rebuilt to match this system so far: the sidebar/navbar shell (used by
+every page) and the Dashboard overview (`/dashboard`), which now shows
+real KPI cards (employees, sales/purchases/profit this month with
+month-over-month deltas), a 7-day sales trend chart, a top-products
+chart, recent activity pulled from the audit log, and permission-aware
+quick links. Every other page inherits the new shell and badge colors
+automatically, but still uses the original card/table layout rather
+than a full mockup-matched redesign — ask if you want a specific page
+(Roles, Reports, etc.) taken further to match.
+
 ## Modules built so far
 
 **Phase 1 — Foundation:** Docker, Postgres, Auth (JWT), Roles/RBAC, Users, Dashboard shell.

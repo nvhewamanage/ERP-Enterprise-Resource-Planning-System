@@ -1,8 +1,8 @@
 import type { User } from "../types/user";
 
 const STYLES: Record<User["status"], { dot: string; text: string; bg: string }> = {
-  active: { dot: "bg-accent", text: "text-accent", bg: "bg-accent-soft" },
-  inactive: { dot: "bg-zinc-400", text: "text-zinc-600", bg: "bg-zinc-100" },
+  active: { dot: "bg-status-success", text: "text-status-success", bg: "bg-status-success-soft" },
+  inactive: { dot: "bg-status-neutral", text: "text-status-neutral", bg: "bg-status-neutral-soft" },
 };
 
 export function StatusBadge({ status }: { status: User["status"] }) {
