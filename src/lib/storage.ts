@@ -2,10 +2,12 @@ import fs from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads");
+function getUploadDir() {
+  return process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
+}
 
 async function ensureUploadDir(): Promise<void> {
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  await fs.mkdir(getUploadDir(), { recursive: true });
 }
 
 /**
@@ -18,17 +20,17 @@ export async function saveFile(originalFileName: string, buffer: Buffer): Promis
   await ensureUploadDir();
   const safeSuffix = originalFileName.replace(/[^a-zA-Z0-9._-]/g, "_");
   const storedName = `${randomUUID()}-${safeSuffix}`;
-  await fs.writeFile(path.join(UPLOAD_DIR, storedName), buffer);
+  await fs.writeFile(path.join(getUploadDir(), storedName), buffer);
   return storedName;
 }
 
 export async function readFile(storedName: string): Promise<Buffer> {
-  return fs.readFile(path.join(UPLOAD_DIR, storedName));
+  return fs.readFile(path.join(getUploadDir(), storedName));
 }
 
 export async function deleteFile(storedName: string): Promise<void> {
   try {
-    await fs.unlink(path.join(UPLOAD_DIR, storedName));
+    await fs.unlink(path.join(getUploadDir(), storedName));
   } catch (err) {
     // Missing file shouldn't block deleting the DB row that pointed to it.
     console.error(`Couldn't remove uploaded file ${storedName}:`, err);

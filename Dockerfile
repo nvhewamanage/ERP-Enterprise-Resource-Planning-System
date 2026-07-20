@@ -23,6 +23,9 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+ARG JWT_SECRET
+ENV JWT_SECRET=$JWT_SECRET
+
 # If using Prisma, uncomment the next line
 # RUN npx prisma generate
 
