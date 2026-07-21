@@ -20,7 +20,7 @@ export default function DashboardLayout({
   }, [fetchCurrentUser]);
 
   return (
-    <div className="flex h-screen flex-1">
+    <div className="flex h-full w-full">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Navbar />

@@ -104,8 +104,8 @@ Seeded roles: `super_admin`, `hr_manager`, `inventory_manager`,
 `finance_manager`, `sales_manager`, `employee`, `supplier`.
 
 **Default login (change immediately after first sign-in):**
-- Email: `admin@erp.local`
-- Password: `ChangeMe123!`
+- Email: ``
+- Password: ``
 
 ## Project structure
 
