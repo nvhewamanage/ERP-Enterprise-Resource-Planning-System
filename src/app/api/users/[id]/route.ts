@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
-  const { error, session } = await requirePermission(req, "users:manage");
+  const { error, session } = await requirePermission(req, "users:delete");
   if (error) return error;
 
   const { id } = await params;

@@ -35,6 +35,7 @@ const SELECT = `
          e.first_name || ' ' || e.last_name AS employee_name
   FROM payroll_runs pr
   JOIN employees e ON e.id = pr.employee_id
+  WHERE pr.deleted_at IS NULL
 `;
 
 export async function listPayrollRuns(): Promise<PayrollRun[]> {
@@ -43,7 +44,7 @@ export async function listPayrollRuns(): Promise<PayrollRun[]> {
 }
 
 export async function getPayrollRunById(id: string): Promise<PayrollRun | null> {
-  const result = await query<PayrollRunRow>(`${SELECT} WHERE pr.id = $1`, [id]);
+  const result = await query<PayrollRunRow>(`${SELECT} AND pr.id = $1`, [id]);
   return result.rows[0] ? mapRow(result.rows[0]) : null;
 }
 
@@ -90,6 +91,6 @@ export async function deletePayrollRun(id: string): Promise<boolean> {
   if (existing.status !== "pending") {
     throw new Error("Only pending payroll runs can be deleted — cancel it instead");
   }
-  const result = await query("DELETE FROM payroll_runs WHERE id = $1", [id]);
+  const result = await query("UPDATE payroll_runs SET deleted_at = now() WHERE id = $1", [id]);
   return (result.rowCount ?? 0) > 0;
 }

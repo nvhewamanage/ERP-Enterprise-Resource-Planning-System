@@ -75,6 +75,13 @@ export async function updateEmployee(id: string, input: UpdateEmployeeInput): Pr
 }
 
 export async function deleteEmployee(id: string): Promise<boolean> {
-  const result = await query("DELETE FROM employees WHERE id = $1", [id]);
+  // Employees already have a status column, so "delete" marks them
+  // terminated rather than adding a parallel deleted_at flag. This also
+  // stops payroll_runs' ON DELETE CASCADE from ever firing here, so a
+  // terminated employee's payroll history stays intact.
+  const result = await query(
+    `UPDATE employees SET status = 'terminated', updated_at = now() WHERE id = $1`,
+    [id]
+  );
   return (result.rowCount ?? 0) > 0;
 }

@@ -94,7 +94,15 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
 }
 
 export async function deleteUser(id: string): Promise<boolean> {
-  const result = await query("DELETE FROM users WHERE id = $1", [id]);
+  // Users already have a status column, so "delete" deactivates the
+  // account rather than removing the row. Deliberately stays visible in
+  // listUsers (not filtered out) so admins can see and reactivate
+  // deactivated accounts — unlike the other soft-deleted modules, this
+  // isn't meant to disappear from view.
+  const result = await query(
+    `UPDATE users SET status = 'inactive', updated_at = now() WHERE id = $1`,
+    [id]
+  );
   return (result.rowCount ?? 0) > 0;
 }
 

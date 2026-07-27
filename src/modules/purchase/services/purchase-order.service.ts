@@ -46,7 +46,7 @@ async function getPurchaseOrderByIdInTx(
     `SELECT po.*, s.name AS supplier_name
      FROM purchase_orders po
      LEFT JOIN suppliers s ON po.supplier_id = s.id
-     WHERE po.id = $1`,
+     WHERE po.id = $1 AND po.deleted_at IS NULL`,
     [id]
   );
   if (poResult.rowCount === 0) return null;
@@ -94,6 +94,7 @@ export async function listPurchaseOrders(): Promise<PurchaseOrderSummary[]> {
      FROM purchase_orders po
      LEFT JOIN suppliers s ON po.supplier_id = s.id
      LEFT JOIN purchase_order_items poi ON po.id = poi.purchase_order_id
+     WHERE po.deleted_at IS NULL
      GROUP BY po.id, s.name
      ORDER BY po.created_at DESC`
   );
@@ -213,8 +214,7 @@ export async function deletePurchaseOrder(id: string): Promise<boolean> {
       throw new Error("Only draft purchase orders can be deleted.");
     }
 
-    const deleteResult = await q("DELETE FROM purchase_orders WHERE id = $1", [id]);
+    const deleteResult = await q("UPDATE purchase_orders SET deleted_at = now() WHERE id = $1", [id]);
     return (deleteResult.rowCount ?? 0) > 0;
   });
 }
-

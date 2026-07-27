@@ -22,12 +22,17 @@ function mapRow(row: SupplierRow): Supplier {
 }
 
 export async function listSuppliers(): Promise<Supplier[]> {
-  const result = await query<SupplierRow>("SELECT * FROM suppliers ORDER BY created_at DESC");
+  const result = await query<SupplierRow>(
+    "SELECT * FROM suppliers WHERE deleted_at IS NULL ORDER BY created_at DESC"
+  );
   return result.rows.map(mapRow);
 }
 
 export async function getSupplierById(id: string): Promise<Supplier | null> {
-  const result = await query<SupplierRow>("SELECT * FROM suppliers WHERE id = $1", [id]);
+  const result = await query<SupplierRow>(
+    "SELECT * FROM suppliers WHERE id = $1 AND deleted_at IS NULL",
+    [id]
+  );
   return result.rows[0] ? mapRow(result.rows[0]) : null;
 }
 
@@ -62,6 +67,21 @@ export async function updateSupplier(id: string, input: UpdateSupplierInput): Pr
 }
 
 export async function deleteSupplier(id: string): Promise<boolean> {
-  const result = await query("DELETE FROM suppliers WHERE id = $1", [id]);
+  const existing = await getSupplierById(id);
+  if (!existing) return false;
+
+  // Soft delete no longer triggers the suppliers -> purchase_orders FK
+  // RESTRICT (the row is never actually removed), so this check has to
+  // be explicit now. Only active purchase orders block deletion — one
+  // that was itself soft-deleted shouldn't hold a supplier hostage.
+  const linked = await query(
+    "SELECT 1 FROM purchase_orders WHERE supplier_id = $1 AND deleted_at IS NULL LIMIT 1",
+    [id]
+  );
+  if ((linked.rowCount ?? 0) > 0) {
+    throw new Error("This supplier has existing purchase orders and can't be deleted.");
+  }
+
+  const result = await query("UPDATE suppliers SET deleted_at = now() WHERE id = $1", [id]);
   return (result.rowCount ?? 0) > 0;
 }

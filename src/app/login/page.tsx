@@ -2,7 +2,7 @@
 
 import { Suspense, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore, type CurrentUser } from "@/store/auth.store";
 
 export default function LoginPage() {
   return (
@@ -34,9 +34,18 @@ function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      let data: (CurrentUser & { error?: string }) | null = null;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          data = await res.json();
+        } catch {
+          // ignore parsing error
+        }
+      }
+
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong");
+        setError(data?.error ?? "Something went wrong");
         return;
       }
 
@@ -44,6 +53,8 @@ function LoginForm() {
       const next = searchParams.get("next") ?? "/dashboard";
       router.push(next);
       router.refresh();
+    } catch {
+      setError("Failed to connect to the server");
     } finally {
       setIsSubmitting(false);
     }

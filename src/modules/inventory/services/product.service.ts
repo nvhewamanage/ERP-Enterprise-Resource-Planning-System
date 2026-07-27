@@ -26,17 +26,25 @@ function mapRow(row: ProductRow): Product {
 }
 
 export async function listProducts(): Promise<Product[]> {
-  const result = await query<ProductRow>("SELECT * FROM products ORDER BY created_at DESC");
+  const result = await query<ProductRow>(
+    "SELECT * FROM products WHERE deleted_at IS NULL ORDER BY created_at DESC"
+  );
   return result.rows.map(mapRow);
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const result = await query<ProductRow>("SELECT * FROM products WHERE id = $1", [id]);
+  const result = await query<ProductRow>(
+    "SELECT * FROM products WHERE id = $1 AND deleted_at IS NULL",
+    [id]
+  );
   return result.rows[0] ? mapRow(result.rows[0]) : null;
 }
 
 export async function getProductBySku(sku: string): Promise<Product | null> {
-  const result = await query<ProductRow>("SELECT * FROM products WHERE sku = $1", [sku]);
+  const result = await query<ProductRow>(
+    "SELECT * FROM products WHERE sku = $1 AND deleted_at IS NULL",
+    [sku]
+  );
   return result.rows[0] ? mapRow(result.rows[0]) : null;
 }
 
@@ -66,6 +74,22 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
-  const result = await query("DELETE FROM products WHERE id = $1", [id]);
+  const existing = await getProductById(id);
+  if (!existing) return false;
+
+  // Products with purchase/sales history stay for reporting — archive
+  // instead of removing them out from under past order line items.
+  const referenced = await query(
+    `SELECT 1 FROM purchase_order_items WHERE product_id = $1
+     UNION ALL
+     SELECT 1 FROM sales_order_items WHERE product_id = $1
+     LIMIT 1`,
+    [id]
+  );
+  if ((referenced.rowCount ?? 0) > 0) {
+    throw new Error("This product has existing order history and can't be deleted.");
+  }
+
+  const result = await query("UPDATE products SET deleted_at = now() WHERE id = $1", [id]);
   return (result.rowCount ?? 0) > 0;
 }
