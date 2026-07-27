@@ -18,12 +18,17 @@ function mapRow(row: CustomerRow): Customer {
 }
 
 export async function listCustomers(): Promise<Customer[]> {
-  const result = await query<CustomerRow>("SELECT * FROM customers ORDER BY created_at DESC");
+  const result = await query<CustomerRow>(
+    "SELECT * FROM customers WHERE deleted_at IS NULL ORDER BY created_at DESC"
+  );
   return result.rows.map(mapRow);
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {
-  const result = await query<CustomerRow>("SELECT * FROM customers WHERE id = $1", [id]);
+  const result = await query<CustomerRow>(
+    "SELECT * FROM customers WHERE id = $1 AND deleted_at IS NULL",
+    [id]
+  );
   return result.rows[0] ? mapRow(result.rows[0]) : null;
 }
 
@@ -48,6 +53,17 @@ export async function updateCustomer(id: string, input: UpdateCustomerInput): Pr
 }
 
 export async function deleteCustomer(id: string): Promise<boolean> {
-  const result = await query("DELETE FROM customers WHERE id = $1", [id]);
+  const existing = await getCustomerById(id);
+  if (!existing) return false;
+
+  const linked = await query(
+    "SELECT 1 FROM sales_orders WHERE customer_id = $1 AND deleted_at IS NULL LIMIT 1",
+    [id]
+  );
+  if ((linked.rowCount ?? 0) > 0) {
+    throw new Error("This customer has existing sales orders and can't be deleted.");
+  }
+
+  const result = await query("UPDATE customers SET deleted_at = now() WHERE id = $1", [id]);
   return (result.rowCount ?? 0) > 0;
 }

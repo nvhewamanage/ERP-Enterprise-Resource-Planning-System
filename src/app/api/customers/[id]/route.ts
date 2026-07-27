@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/api-auth";
+import { recordAudit } from "@/lib/audit";
 import { updateCustomerSchema } from "@/modules/sales/validations/customer.schema";
 import { getCustomerById, updateCustomer, deleteCustomer } from "@/modules/sales/services/customer.service";
 
@@ -31,19 +32,23 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
-  const { error } = await requirePermission(req, "sales:manage");
+  const { error, session } = await requirePermission(req, "sales:manage");
   if (error) return error;
 
   const { id } = await params;
   try {
+    const existing = await getCustomerById(id);
     const ok = await deleteCustomer(id);
     if (!ok) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    if (existing) {
+      await recordAudit(session, "customer.delete", "customer", id, { name: existing.name });
+    }
+
     return new NextResponse(null, { status: 204 });
-  } catch {
-    // FK violation: customer still has sales orders referencing it.
-    return NextResponse.json(
-      { error: "This customer has existing sales orders and can't be deleted." },
-      { status: 409 }
-    );
+  } catch (err) {
+    // Customer still has sales orders referencing it (see customer.service.ts)
+    const message = err instanceof Error ? err.message : "Couldn't delete this customer.";
+    return NextResponse.json({ error: message }, { status: 409 });
   }
 }

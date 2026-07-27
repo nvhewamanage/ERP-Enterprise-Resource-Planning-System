@@ -56,6 +56,7 @@ const SELECT_HEADER = `
          c.name AS customer_name
   FROM sales_orders so
   JOIN customers c ON c.id = so.customer_id
+  WHERE so.deleted_at IS NULL
 `;
 
 export async function listSalesOrders(): Promise<SalesOrderSummary[]> {
@@ -65,6 +66,7 @@ export async function listSalesOrders(): Promise<SalesOrderSummary[]> {
      FROM sales_orders so
      JOIN customers c ON c.id = so.customer_id
      LEFT JOIN sales_order_items soi ON soi.sales_order_id = so.id
+     WHERE so.deleted_at IS NULL
      GROUP BY so.id, c.name
      ORDER BY so.created_at DESC`
   );
@@ -84,7 +86,7 @@ async function getItemsForOrder(orderId: string): Promise<SalesOrderItem[]> {
 }
 
 export async function getSalesOrderById(id: string): Promise<SalesOrder | null> {
-  const result = await query<SOHeaderRow>(`${SELECT_HEADER} WHERE so.id = $1`, [id]);
+  const result = await query<SOHeaderRow>(`${SELECT_HEADER} AND so.id = $1`, [id]);
   if (!result.rows[0]) return null;
 
   const items = await getItemsForOrder(id);
@@ -186,6 +188,6 @@ export async function deleteSalesOrder(id: string): Promise<boolean> {
   if (existing.status !== "draft") {
     throw new Error("Only draft sales orders can be deleted — cancel it instead");
   }
-  const result = await query("DELETE FROM sales_orders WHERE id = $1", [id]);
+  const result = await query("UPDATE sales_orders SET deleted_at = now() WHERE id = $1", [id]);
   return (result.rowCount ?? 0) > 0;
 }
